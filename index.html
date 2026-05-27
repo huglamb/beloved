@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <!-- 引入提取出的静态样式表 -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- 1. 引入配置文件，您可以修改此文件来更新各个文本和图片URL，无需懂HTML -->
+    <script src="./config.js"></script>
+    
+    <!-- 2. 渲染页面的脚本：将 config 中的数据动态转换为 HTML -->
+    <script>
+        // 设置 SEO 信息
+        document.title = resumeData.seo.title;
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (!metaDesc) {
+            metaDesc = document.createElement('meta');
+            metaDesc.name = 'description';
+            document.head.appendChild(metaDesc);
+        }
+        metaDesc.content = resumeData.seo.description;
+
+        // 构建导航链接
+        const navLinksHTML = resumeData.nav.links.map(link => 
+            `<a href="${link.href}">${link.label}</a>`
+        ).join('');
+
+        // 构建关于我卡片
+        const aboutCardsHTML = resumeData.about.cards.map(card => `
+            <div class="info-card">
+                <h3>${card.title}</h3>
+                <p>${card.description}</p>
+                ${card.tags ? `
+                    <div class="tag-container">
+                        ${card.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
+            </div>
+        `).join('');
+
+        // 构建文字城堡作品
+        const worksHTML = resumeData.works.items.map(item => `
+            <div class="work-card">
+                <div class="work-thumb ${item.styleClass}">
+                    ${item.icon.startsWith('http') || item.icon.startsWith('/') || item.icon.startsWith('.')
+                        ? `<img src="${item.icon}" alt="${item.title}" class="work-thumb-image" loading="lazy" />`
+                        : `<span class="work-thumb-icon">${item.icon}</span>`
+                    }
+                </div>
+                <div class="work-info">
+                    <div>
+                        <h3>${item.title}</h3>
+                        <p>${item.description}</p>
+                    </div>
+                    <span class="work-meta">${item.meta}</span>
+                </div>
+            </div>
+        `).join('');
+
+        // 构建成长轨迹
+        const timelineHTML = resumeData.experience.timeline.map(exp => `
+            <div class="timeline-item">
+                <div class="timeline-date">${exp.date}</div>
+                <div class="timeline-content">
+                    <h3>${exp.title}</h3>
+                    <p>${exp.description}</p>
+                </div>
+            </div>
+        `).join('');
+
+        // 构建联系方式链接
+        const contactLinksHTML = resumeData.contact.links.map(link => `
+            <a href="${link.href}" class="contact-btn ${link.type}">
+                <span>${link.text}</span>
+            </a>
+        `).join('');
+
+        // 拼装整体 HTML 模板
+        const rootHTML = `
+            <!-- 背景彩虹莫兰迪色块 -->
+            <div class="bg-blobs">
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+                <div class="blob blob-3"></div>
+            </div>
+
+            <!-- 导航栏 -->
+            <nav>
+                <div class="logo">
+                    <span class="logo-dot"></span>
+                    ${resumeData.nav.logoLabel}
+                </div>
+                <div class="nav-links">
+                    ${navLinksHTML}
+                </div>
+            </nav>
+
+            <!-- 首屏展示区 -->
+            <header>
+                <div class="content-container">
+                    <div class="hero-content">
+                        <div class="hero-text">
+                            <span class="title-badge">${resumeData.hero.badge}</span>
+                            <h1>${resumeData.hero.title}</h1>
+                            <p>${resumeData.hero.description}</p>
+                            <a href="${resumeData.hero.button.href}" class="custom-btn">
+                                <span>${resumeData.hero.button.text}</span>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="avatar-area">
+                            <div class="avatar-circle" id="avatar-circle">
+                                ${resumeData.theme.avatarUrl 
+                                    ? `<img src="${resumeData.theme.avatarUrl}" alt="Avatar" class="avatar-image" loading="lazy" />`
+                                    : `<svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="50" cy="50" r="40" fill="#E3B5A4" opacity="0.6" />
+                                        <circle cx="50" cy="45" r="20" fill="#4A4540" />
+                                        <path d="M30 75C30 65 38.9543 58 50 58C61.0457 58 70 65 70 75" stroke="#4A4540" stroke-width="6" stroke-linecap="round" />
+                                        <circle cx="45" cy="42" r="2" fill="#FAF6F0" />
+                                        <circle cx="55" cy="42" r="2" fill="#FAF6F0" />
+                                        <path d="M47 48C47 48 48.5 50 50 50C51.5 50 53 48 53 48" stroke="#FAF6F0" stroke-width="2" stroke-linecap="round" />
+                                    </svg>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 关于我 -->
+            <section id="about">
+                <div class="content-container">
+                    <div class="reveal">
+                        <h2 class="section-title">${resumeData.about.title}</h2>
+                        <div class="about-grid">
+                            ${aboutCardsHTML}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 文字城堡 -->
+            <section id="works">
+                <div class="content-container">
+                    <div class="reveal">
+                        <h2 class="section-title">${resumeData.works.title}</h2>
+                        <div class="works-wrapper">
+                            <div class="work-grid" id="work-grid">
+                                ${worksHTML}
+                            </div>
+                            <div class="scroll-hint" id="scroll-hint">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 成长轨迹 -->
+            <section id="experience">
+                <div class="content-container">
+                    <div class="reveal">
+                        <h2 class="section-title">${resumeData.experience.title}</h2>
+                        <div class="timeline">
+                            ${timelineHTML}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 树洞 -->
+            <section id="contact">
+                <div class="content-container">
+                    <div class="reveal">
+                        <div class="contact-box">
+                            <h2>${resumeData.contact.title}</h2>
+                            <p>${resumeData.contact.description}</p>
+                            <div class="contact-links">
+                                ${contactLinksHTML}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 页脚 -->
+            <footer>
+                <p>${resumeData.footer.text}</p>
+            </footer>
+        `;
+
+        document.getElementById('root').innerHTML = rootHTML;
+
+        // 绑定交互事件
+        // 1. 头像互动
+        const avatar = document.getElementById('avatar-circle');
+        if (avatar) {
+            avatar.addEventListener('mousemove', (e) => {
+                const { left, top, width, height } = avatar.getBoundingClientRect();
+                const x = (e.clientX - left - width / 2) / 10;
+                const y = (e.clientY - top - height / 2) / 10;
+                avatar.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            avatar.addEventListener('mouseleave', () => {
+                avatar.style.transform = 'translate(0, 0)';
+            });
+        }
+
+        // 2. 滚动特效
+        const reveals = document.querySelectorAll('.reveal');
+        function revealOnScroll() {
+            for (let i = 0; i < reveals.length; i++) {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveals[i].getBoundingClientRect().top;
+                const elementVisible = 120;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add('active');
+                }
+            }
+        }
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll(); // 初始调用
+
+        // 3. 卡片横向滚动指示器
+        const workGrid = document.getElementById('work-grid');
+        const scrollHint = document.getElementById('scroll-hint');
+        if (workGrid && scrollHint) {
+            scrollHint.addEventListener('click', () => {
+                workGrid.scrollBy({ left: 330, behavior: 'smooth' });
+            });
+            workGrid.addEventListener('scroll', () => {
+                if (workGrid.scrollLeft > 20) {
+                    scrollHint.classList.add('hidden');
+                } else {
+                    scrollHint.classList.remove('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+
